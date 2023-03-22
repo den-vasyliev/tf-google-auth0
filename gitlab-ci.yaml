@@ -1,0 +1,10 @@
+# gitlab job to validate terraform code
+variables:
+  WORKING_DIR: tf-google-auth-proxy
+
+validate:
+  stage: test
+  image: hashicorp/terraform:light
+  script:
+    - terraform -chdir=${WORKING_DIR} init
+    - terraform -chdir=${WORKING_DIR} validate
