@@ -1,20 +1,19 @@
 provider "google" {
   project = var.GOOGLE_PROJECT
-  region  = "us-central1"
-  zone    = "us-central1-a"
+  region  = var.GOOGLE_REGION
 }
 
 # resource internet global network endpoint group
 resource "google_compute_global_network_endpoint_group" "internet-neg" {
   name        = "internet-neg"
   network_endpoint_type = "INTERNET_FQDN_PORT"
-  default_port = 443
+  default_port = var.PORT
 }
 
 resource "google_compute_global_network_endpoint" "default-endpoint" {
   global_network_endpoint_group = google_compute_global_network_endpoint_group.internet-neg.self_link
-  fqdn       = "www.google.com"
-  port       = 443
+  fqdn       = var.FQDN
+  port       = var.PORT
 }
 
 # resource internet global backend service
@@ -39,7 +38,7 @@ resource "google_compute_health_check" "health-check" {
   healthy_threshold  = 1
   unhealthy_threshold = 1
   https_health_check {
-    port = 443
+    port = var.PORT
   }
 }
 
@@ -57,7 +56,7 @@ resource "google_compute_target_https_proxy" "target-https-proxy" {
 resource "google_compute_global_forwarding_rule" "global-forwarding-rule" {
   name       = "global-forwarding-rule"
   target     = google_compute_target_https_proxy.target-https-proxy.self_link
-  port_range = "443"
+  port_range = var.PORT
 }
 
 resource "google_compute_global_address" "global-address" {
